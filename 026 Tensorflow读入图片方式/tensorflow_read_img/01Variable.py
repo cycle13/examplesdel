@@ -1,0 +1,25 @@
+#encoding=utf-8
+import os
+import sys
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
+
+img_name = 'img1.jpg'
+
+def showimage_variable_opencv(filename):
+    image = cv2.imread(filename)
+    
+#    Create a Tensorflow variable
+    image_tensor = tf.Variable(image, name = 'image')
+    
+    with tf.Session() as sess:
+#        image_flap = tf.transpose(image_tensor, perm = [1,0,2])
+        sess.run(tf.global_variables_initializer())
+        result = sess.run(image_tensor)
+        
+    cv2.imshow('result', result)
+    cv2.waitKey(0)
+
+showimage_variable_opencv(img_name)
