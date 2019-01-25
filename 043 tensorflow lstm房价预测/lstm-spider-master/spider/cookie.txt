@@ -1,0 +1,5 @@
+#LWP-Cookies-2.0
+Set-Cookie3: lianjia_ssid="f330e663-0c7a-4e0f-9186-e03ce1b01242"; path="/"; domain=".lianjia.com"; path_spec; domain_dot; expires="2018-12-05 14:11:18Z"; version=0
+Set-Cookie3: lianjia_uuid="f5ba6368-3b38-4e36-ad43-49bd733bdb7c"; path="/"; domain=".lianjia.com"; path_spec; domain_dot; expires="2028-12-02 13:41:18Z"; version=0
+Set-Cookie3: select_city=510100; path="/"; domain=".lianjia.com"; path_spec; domain_dot; expires="2018-12-06 13:41:18Z"; version=0
+Set-Cookie3: all-lj=ed5a77c9e9ec3809d0c1321ec78803ae; path="/"; domain="cd.lianjia.com"; path_spec; discard; version=0

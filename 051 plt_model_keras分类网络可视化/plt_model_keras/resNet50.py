@@ -1,0 +1,83 @@
+#coding=utf-8  
+from keras.models import Sequential  
+from keras.layers import Dense,Flatten,Dropout  
+from keras.layers.convolutional import Conv2D,MaxPooling2D
+
+from keras.models import Model  
+from keras.layers import Input,Dense,BatchNormalization,Conv2D,MaxPooling2D,AveragePooling2D,ZeroPadding2D  
+from keras.layers import add,Flatten  
+  
+from keras.utils.np_utils import to_categorical  
+
+import numpy as np  
+from keras.utils.vis_utils import plot_model #elesun plt
+
+def Conv2d_BN(x, nb_filter,kernel_size, strides=(1,1), padding='same',name=None):
+    if name is not None:
+        bn_name = name + '_bn'
+        conv_name = name + '_conv'
+    else:
+        bn_name = None
+        conv_name = None
+
+    x = Conv2D(nb_filter,kernel_size,padding=padding,strides=strides,activation='relu',name=conv_name)(x)
+    x = BatchNormalization(axis=3,name=bn_name)(x)
+    return x
+
+def Conv_Block(inpt,nb_filter,kernel_size,strides=(1,1), with_conv_shortcut=False):
+    x = Conv2d_BN(inpt,nb_filter=nb_filter[0],kernel_size=(1,1),strides=strides,padding='same')
+    x = Conv2d_BN(x, nb_filter=nb_filter[1], kernel_size=(3,3), padding='same')
+    x = Conv2d_BN(x, nb_filter=nb_filter[2], kernel_size=(1,1), padding='same')
+    if with_conv_shortcut:
+        shortcut = Conv2d_BN(inpt,nb_filter=nb_filter[2],strides=strides,kernel_size=kernel_size)
+        x = add([x,shortcut])
+        return x
+    else:
+        x = add([x,inpt])
+        return x
+
+def ResNet50():
+    inpt = Input(shape=(224,224,3))
+    x = ZeroPadding2D((3,3))(inpt)
+    x = Conv2d_BN(x,nb_filter=64,kernel_size=(7,7),strides=(2,2),padding='valid')
+    x = MaxPooling2D(pool_size=(3,3),strides=(2,2),padding='same')(x)
+    
+    x = Conv_Block(x,nb_filter=[64,64,256],kernel_size=(3,3),strides=(1,1),with_conv_shortcut=True)
+    x = Conv_Block(x,nb_filter=[64,64,256],kernel_size=(3,3))
+    x = Conv_Block(x,nb_filter=[64,64,256],kernel_size=(3,3))
+    
+    x = Conv_Block(x,nb_filter=[128,128,512],kernel_size=(3,3),strides=(2,2),with_conv_shortcut=True)
+    x = Conv_Block(x,nb_filter=[128,128,512],kernel_size=(3,3))
+    x = Conv_Block(x,nb_filter=[128,128,512],kernel_size=(3,3))
+    x = Conv_Block(x,nb_filter=[128,128,512],kernel_size=(3,3))
+    
+    x = Conv_Block(x,nb_filter=[256,256,1024],kernel_size=(3,3),strides=(2,2),with_conv_shortcut=True)
+    x = Conv_Block(x,nb_filter=[256,256,1024],kernel_size=(3,3))
+    x = Conv_Block(x,nb_filter=[256,256,1024],kernel_size=(3,3))
+    x = Conv_Block(x,nb_filter=[256,256,1024],kernel_size=(3,3))
+    x = Conv_Block(x,nb_filter=[256,256,1024],kernel_size=(3,3))
+    x = Conv_Block(x,nb_filter=[256,256,1024],kernel_size=(3,3))
+    
+    x = Conv_Block(x,nb_filter=[512,512,2048],kernel_size=(3,3),strides=(2,2),with_conv_shortcut=True)
+    x = Conv_Block(x,nb_filter=[512,512,2048],kernel_size=(3,3))
+    x = Conv_Block(x,nb_filter=[512,512,2048],kernel_size=(3,3))
+    x = AveragePooling2D(pool_size=(7,7))(x)
+    x = Flatten()(x)
+    x = Dense(1000,activation='softmax')(x)
+    
+    model = Model(inputs=inpt,outputs=x)
+    return model
+	
+	
+if __name__ == "__main__":
+	model = ResNet50()
+	model.summary()#elesun
+	plot_model(model,to_file='plt_ResNet50.png',show_shapes=False,show_layer_names=False) #elesun plt	
+	#model.compile(optimizer='sgd',loss='categorical_crossentropy',metrics=['accuracy'])  	  
+	#model.fit(train_x,train_y,validation_data=(valid_x,valid_y),batch_size=20,epochs=20,verbose=2)    
+	#print model.evaluate(test_x,test_y,batch_size=20,verbose=2)  
+
+
+
+
+
